@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
 import "./globals.css";
-import { Toaster } from "sonner";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import ModalProvider from "@/providers/ModalProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Plura",
@@ -34,8 +35,10 @@ export default function RootLayout({
         )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange> 
-            {children}
-            <Toaster richColors />
+            <ModalProvider>
+              {children}
+            </ModalProvider>
+            <Toaster />
           </ThemeProvider>
       </body>
     </html>
