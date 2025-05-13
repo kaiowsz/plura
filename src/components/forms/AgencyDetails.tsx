@@ -2,7 +2,6 @@
 import { Agency } from "@prisma/client"
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react"
-import { toast } from "sonner"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { useForm } from "react-hook-form";
@@ -13,9 +12,11 @@ import FileUpload from "../global/FileUpload";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
 import { NumberInput } from "@tremor/react";
-import { deleteAgency, initUser, saveActivityLogsNotification, updateAgencyDetails } from "@/lib/queries";
+import { deleteAgency, initUser, saveActivityLogsNotification, updateAgencyDetails, upsertAgency } from "@/lib/queries";
 import { Button } from "../ui/button";
 import Loading from "../global/Loading";
+import { v4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
     data?: Partial<Agency>;
@@ -32,13 +33,12 @@ const FormSchema = z.object({
     state: z.string().min(1),
     country: z.string().min(1),
     agencyLogo: z.string().min(1),
-
 })
 
 const AgencyDetails = ({data}: Props) => {
     
-    
     const router = useRouter();
+    const { toast } = useToast();
 
     const [deletingAgency, setDeletingAgency] = useState(false);
 
@@ -46,62 +46,132 @@ const AgencyDetails = ({data}: Props) => {
         mode: "onChange",
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: data?.name,
-            companyEmail: data?.companyEmail,
-            companyPhone: data?.companyPhone,
+            name: data?.name || "",
+            companyEmail: data?.companyEmail || "",
+            companyPhone: data?.companyPhone || "",
             whiteLabel: data?.whiteLabel || false,
-            address: data?.address,
-            city: data?.city,
-            zipCode: data?.zipCode,
-            state: data?.state,
-            country: data?.country,
-            agencyLogo: data?.agencyLogo
+            address: data?.address || "",
+            city: data?.city || "",
+            zipCode: data?.zipCode || "",
+            state: data?.state || "",
+            country: data?.country || "",
+            agencyLogo: data?.agencyLogo || ""
         }
     });
 
-    useEffect(() => {
-        if(data) {
-            form.reset(data);
-        }
-    }, [data])
+    // useEffect(() => {
+    //     if (data) {
+    //         form.reset({
+    //             name: data.name ?? "",
+    //             companyEmail: data.companyEmail ?? "",
+    //             companyPhone: data.companyPhone ?? "",
+    //             whiteLabel: data.whiteLabel ?? false,
+    //             address: data.address ?? "",
+    //             city: data.city ?? "",
+    //             zipCode: data.zipCode ?? "",
+    //             state: data.state ?? "",
+    //             country: data.country ?? "",
+    //             agencyLogo: data.agencyLogo ?? "",
+    //         });
+    //     }
+    // }, [data]);
 
-    const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
+    useEffect(() => {
+        const subs = form.watch((value) => {
+            console.log(`form values: ${value.companyEmail}`)
+            console.log(`form values: ${value.name}`)
+            console.log(`form values: ${value.city}`)
+            console.log(`form values: ${value.agencyLogo}`)
+        })
+
+        return () => subs.unsubscribe();
+    })
+
+    async function onSubmit(values: z.infer<typeof FormSchema>) {
         try {
             let newUserData;
             let customerId;
 
-            if(!data?.id) {
-                const bodyData = {
-                    email: values.companyEmail,
-                    name: values.name,
-                    shipping: {
-                        address: {
-                            city: values.city,
-                            country: values.country,
-                            line1: values.address,
-                            postal_code: values.zipCode,
-                            state: values.zipCode,
-                        },
-                        name: values.name,
-                    },
-                    address: {
-                        city: values.city,
-                        country: values.country,
-                        line1: values.address,
-                        postal_code: values.zipCode,
-                        state: values.zipCode,
-                    }
-                }
+            console.log(`VIA ARGS: ${values.address}`);
+
+            console.log(`VIA GET VALUES: ${form.getValues().address}`)
+
+            // if(!data?.id) {
+            //     const bodyData = {
+            //         email: values.companyEmail,
+            //         name: values.name,
+            //         shipping: {
+            //             address: {
+            //                 city: values.city,
+            //                 country: values.country,
+            //                 line1: values.address,
+            //                 postal_code: values.zipCode,
+            //                 state: values.zipCode,
+            //             },
+            //             name: values.name,
+            //         },
+            //         address: {
+            //             city: values.city,
+            //             country: values.country,
+            //             line1: values.address,
+            //             postal_code: values.zipCode,
+            //             state: values.zipCode,
+            //         }
+            //     }
+
+            //     const customerResponse = await fetch("/api/stripe-create-customer", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json"
+            //         },
+            //         body: JSON.stringify(bodyData)
+            //     });
+
+            //     const customerData: {customerId: string} = await customerResponse.json()
+
+            //     customerId = customerData.customerId;
+            // }
+
+            // await initUser({
+            //     role: "AGENCY_OWNER"
+            // });
+
+            // if(!data?.customerId && !customerId) return;
+            
+            const { address, agencyLogo, city, companyEmail, companyPhone, country, name, state, whiteLabel, zipCode } = form.getValues();
+
+            const bodyData = {
+                id: data?.id ? data.id : v4(),
+                address: values.address || address,
+                agencyLogo: values.agencyLogo || agencyLogo,
+                city: values.city || city,
+                companyPhone: values.companyPhone || companyPhone,
+                companyEmail: values.companyEmail || companyEmail,
+                country: values.country || country,
+                name: values.name || name,
+                state: values.state || state,
+                whiteLabel: values.whiteLabel || whiteLabel,
+                zipCode: values.zipCode || zipCode,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                connectAccountId: "",
+                goal: 5, 
             }
 
-            newUserData = await initUser({
-                role: "AGENCY_OWNER"
+            const response = await upsertAgency(bodyData)
+            
+            toast({
+                title: "Agency created successfully." 
             });
 
-            if(!data?.customerId) 
-
+            if(data?.id) router.refresh();
+            if(response) router.refresh();
         } catch (error) {
-            
+            toast({
+                title: "Oops!",
+                description: "Could not create your agency. Please try again.",
+                variant: "destructive"
+            })
         }
     }
 
@@ -115,11 +185,18 @@ const AgencyDetails = ({data}: Props) => {
         try {
             const response = await deleteAgency(data.id);
 
-            toast("Your Agency and all subaccounts were deleted.");
+            toast({
+                title: "Agency deleted",
+                description: "Your Agency and all subaccounts were deleted."
+            });
             router.refresh();
 
         } catch (error) {
-            toast("Oops! Your Agency couldn't be deleted. Please try again.");
+            toast({
+                title: "Oops!",
+                description: "Couldn't delete your agency. Please try again.",
+                variant: "destructive",
+              });
             router.refresh();
 
         }
@@ -138,10 +215,10 @@ const AgencyDetails = ({data}: Props) => {
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         
                         <FormField disabled={isLoading} control={form.control} name="agencyLogo" render={({field}) => (
-                            <FormItem>
+                            <FormItem >
                                 <FormLabel>Agency Logo</FormLabel>
                                 <FormControl>
                                     <FileUpload apiEndpoint="agencyLogo" onChange={field.onChange} value={field.value} />
@@ -160,11 +237,11 @@ const AgencyDetails = ({data}: Props) => {
                                 </FormItem>
                             )} />
 
-                            <FormField disabled={isLoading} control={form.control} name="name" render={({field}) => (
+                            <FormField disabled={isLoading} control={form.control} name="companyEmail" render={({field}) => (
                                 <FormItem className="flex-1">
-                                    <FormLabel>Agency Name</FormLabel>
+                                    <FormLabel>Agency Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Your Agency Name" {...field} />
+                                        <Input placeholder="Your Agency Email" {...field} />
                                     </FormControl>
                                 </FormItem>
                             )} />
