@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,11 +13,10 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
-import { Funnel, Lane, Pipeline } from "@prisma/client";
+import { Lane } from "@prisma/client";
 import { Input } from "../ui/input";
 
 import { Button } from "../ui/button";
@@ -26,16 +24,13 @@ import { LaneFormSchema } from "@/lib/types";
 import {
   getPipelineDetails,
   saveActivityLogsNotification,
-  upsertFunnel,
   upsertLane,
-  upsertPipeline,
 } from "@/lib/queries";
-import { v4 } from "uuid";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useModal } from "@/providers/ModalProvider";
 import { useToast } from "@/hooks/use-toast";
 import Loading from "../global/Loading";
+import { useRouter } from "next/navigation";
 
 interface LaneFormProps {
   defaultData?: Lane;

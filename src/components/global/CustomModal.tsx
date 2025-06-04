@@ -14,7 +14,7 @@ import { ScrollArea } from "../ui/scroll-area";
 
 interface CustomModalProps {
   title: string;
-  subTitle?: string;
+  subHeading?: string;
   children: React.ReactNode;
   scrollShadow?: boolean;
   defaultOpen?: boolean;
@@ -23,7 +23,7 @@ interface CustomModalProps {
 const CustomModal: React.FC<CustomModalProps> = ({
   children,
   defaultOpen,
-  subTitle,
+  subHeading,
   title,
   scrollShadow = true,
 }) => {
@@ -36,7 +36,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
           <div className="flex flex-col gap-4">
             <DialogHeader className="text-left">
               <DialogTitle className="text-2xl font-bold">{title}</DialogTitle>
-              <DialogDescription>{subTitle}</DialogDescription>
+              <DialogDescription>{subHeading}</DialogDescription>
             </DialogHeader>
             <div className="z-[100]">
               {children}

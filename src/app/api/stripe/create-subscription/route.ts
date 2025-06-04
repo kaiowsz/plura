@@ -26,13 +26,13 @@ export async function POST(req: Request) {
     console.log(subscriptionExists);
 
     try {
-        if(!subscriptionExists?.Subscription?.subscritiptionId) {
-            throw new Error("Could not find the subscription ID to update the subscription.")
-        }
-
-        if(subscriptionExists.Subscription.active) {
+        
+        if(subscriptionExists?.Subscription?.active && subscriptionExists?.Subscription?.subscritiptionId) {
+            
+            if(!subscriptionExists?.Subscription?.subscritiptionId) {
+                throw new Error("Could not find the subscription ID to update the subscription.")
+            }
             console.log("Updating the subscription")
-
             const currentSubscriptionDetails = await stripe.subscriptions.retrieve(subscriptionExists.Subscription.subscritiptionId);
 
             const subscription = await stripe.subscriptions.update(subscriptionExists.Subscription.subscritiptionId, {

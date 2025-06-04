@@ -59,23 +59,6 @@ const AgencyDetails = ({data}: Props) => {
         }
     });
 
-    // useEffect(() => {
-    //     if (data) {
-    //         form.reset({
-    //             name: data.name ?? "",
-    //             companyEmail: data.companyEmail ?? "",
-    //             companyPhone: data.companyPhone ?? "",
-    //             whiteLabel: data.whiteLabel ?? false,
-    //             address: data.address ?? "",
-    //             city: data.city ?? "",
-    //             zipCode: data.zipCode ?? "",
-    //             state: data.state ?? "",
-    //             country: data.country ?? "",
-    //             agencyLogo: data.agencyLogo ?? "",
-    //         });
-    //     }
-    // }, [data]);
-
     useEffect(() => {
         const subs = form.watch((value) => {
             console.log(`form values: ${value.companyEmail}`)
@@ -92,54 +75,8 @@ const AgencyDetails = ({data}: Props) => {
             let newUserData;
             let customerId;
 
-            console.log(`VIA ARGS: ${values.address}`);
-
-            console.log(`VIA GET VALUES: ${form.getValues().address}`)
-
-            // if(!data?.id) {
-            //     const bodyData = {
-            //         email: values.companyEmail,
-            //         name: values.name,
-            //         shipping: {
-            //             address: {
-            //                 city: values.city,
-            //                 country: values.country,
-            //                 line1: values.address,
-            //                 postal_code: values.zipCode,
-            //                 state: values.zipCode,
-            //             },
-            //             name: values.name,
-            //         },
-            //         address: {
-            //             city: values.city,
-            //             country: values.country,
-            //             line1: values.address,
-            //             postal_code: values.zipCode,
-            //             state: values.zipCode,
-            //         }
-            //     }
-
-            //     const customerResponse = await fetch("/api/stripe-create-customer", {
-            //         method: "POST",
-            //         headers: {
-            //             "Content-Type": "application/json"
-            //         },
-            //         body: JSON.stringify(bodyData)
-            //     });
-
-            //     const customerData: {customerId: string} = await customerResponse.json()
-
-            //     customerId = customerData.customerId;
-            // }
-
-            // await initUser({
-            //     role: "AGENCY_OWNER"
-            // });
-
-            // if(!data?.customerId && !customerId) return;
-            
             const { address, agencyLogo, city, companyEmail, companyPhone, country, name, state, whiteLabel, zipCode } = form.getValues();
-
+            
             const bodyData = {
                 id: data?.id ? data.id : v4(),
                 address: values.address || address,
@@ -156,10 +93,56 @@ const AgencyDetails = ({data}: Props) => {
                 updatedAt: new Date(),
                 connectAccountId: "",
                 goal: 5, 
+            };
+
+
+            if(!data?.id) {
+                const stripeBodyData = {
+                    email: values.companyEmail || companyEmail,
+                    name: values.name || name,
+                    shipping: {
+                        address: {
+                        city: values.city || city,
+                        country: values.country || country,
+                        line1: values.address || address,
+                        postal_code: values.zipCode || zipCode,
+                        state: values.zipCode || zipCode,
+                        },
+                        name: values.name || name,
+                    },
+                    address: {
+                        city: values.city || city,
+                        country: values.country || country,
+                        line1: values.address || address,
+                        postal_code: values.zipCode || zipCode,
+                        state: values.zipCode || zipCode,
+                    },
+                };
+
+                const customerResponse = await fetch("/api/stripe/create-customer", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(stripeBodyData),
+                })
+
+                const customerData: { customerId: string } = await customerResponse.json();
+                
+                customerId = customerData.customerId;
             }
 
-            const response = await upsertAgency(bodyData)
+            newUserData = await initUser({
+                role: "AGENCY_OWNER"
+            })
             
+            if(!data?.customerId && !customerId) return;
+
+            const response = await upsertAgency({
+                ...bodyData,
+                customerId: data?.customerId || customerId || ""
+            })
+
             toast({
                 title: "Agency created successfully." 
             });

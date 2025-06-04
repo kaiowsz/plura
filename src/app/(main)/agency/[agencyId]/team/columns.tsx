@@ -190,7 +190,7 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
             onClick={() => {
               setOpen(
                 <CustomModal
-                  subTitle="You can change permissions only when the user has an owned subaccount"
+                  subHeading="You can change permissions only when the user has an owned subaccount"
                   title="Edit User Details"
                 >
                   <UserDetails

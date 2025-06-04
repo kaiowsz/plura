@@ -3,7 +3,6 @@
 import Stripe from "stripe";
 import { db } from "../db";
 import { stripe } from "./index";
-import { Plan } from "@prisma/client";
 
 export const subscriptionCreated = async (subscription: Stripe.Subscription, customerId: string) => {
     try {
@@ -19,19 +18,6 @@ export const subscriptionCreated = async (subscription: Stripe.Subscription, cus
         if(!agency) {
             throw new Error("Could not find an agency to upsert the subscription.")
         }
-
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-        console.log(subscription.current_period_end)
-
-        // WIP: verify why currentPeriodEndDate does not exist on Database.
 
         const data = {
             active: subscription.status === "active",

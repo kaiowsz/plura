@@ -1,10 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Stripe from "stripe";
 import Image from "next/image";
 import { Funnel } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import stripe from "stripe";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";

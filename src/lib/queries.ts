@@ -7,7 +7,6 @@ import { Agency, Lane, Plan, Prisma, Role, SubAccount, Tag, Ticket, User } from 
 import { v4 } from "uuid";
 import { CreateFunnelFormSchema, CreateMediaType, UpsertFunnelPage } from "./types";
 import { z } from "zod";
-import { Tags } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
 export const getAuthUserDetails = async () => {
@@ -975,6 +974,46 @@ export const deleteFunnelPage = async (funnelPageId: string) => {
     const response = await db.funnelPage.delete({
         where: {
             id: funnelPageId,
+        }
+    });
+
+    return response;
+}
+
+export const getFunnelPageDetails = async (funnelPageId: string) => {
+    const response = await db.funnelPage.findUnique({
+        where: {
+            id: funnelPageId
+        }
+    })
+
+    return response;
+}
+
+export const getDomainContent = async (subDomainName: string) => {
+    const response = await db.funnel.findUnique({
+        where: {
+            subDomainName
+        },
+        include: {
+            FunnelPages: true,
+        }
+    })
+
+    return response;
+}
+
+export const getPipelines = async (subaccountId: string) => {
+    const response = await db.pipeline.findMany({
+        where: {
+            subAccountId: subaccountId,
+        },
+        include: {
+            Lane: {
+                include: {
+                    Tickets: true,
+                }
+            }
         }
     });
 

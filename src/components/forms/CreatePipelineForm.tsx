@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,20 +13,17 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
-import { Funnel, Pipeline } from "@prisma/client";
+import { Pipeline } from "@prisma/client";
 import { Input } from "../ui/input";
 
 import { Button } from "../ui/button";
 import {
   saveActivityLogsNotification,
-  upsertFunnel,
   upsertPipeline,
 } from "@/lib/queries";
-import { v4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "../global/Loading";
@@ -72,6 +68,9 @@ const CreatePipelineForm: React.FC<CreatePipelineFormProps> = ({
   const onSubmit = async (values: z.infer<typeof CreatePipelineFormSchema>) => {
     if (!subAccountId) return;
     try {
+
+      
+
       const response = await upsertPipeline({
         ...values,
         id: defaultData?.id,

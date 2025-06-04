@@ -1,6 +1,5 @@
 "use client";
 
-// import CreateFunnelPage from "@/components/forms/funnel-page";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,7 +30,6 @@ import { useToast } from "@/hooks/use-toast";
 import FunnelStepCard from "./FunnelStepCard";
 import CustomModal from "../global/CustomModal";
 import CreateFunnelPage from "../forms/CreateFunnelPage";
-// import FunnelStepCard from "./funnel-step-card";
 
 type Props = {
   funnel: FunnelsForSubAccount;
@@ -151,7 +149,7 @@ const FunnelSteps = ({ funnel, funnelId, pages, subaccountId }: Props) => {
               setOpen(
                 <CustomModal
                   title="Create or Update a Funnel Page"
-                  subTitle="Funnel Pages allow you to create step by step processes for customers to follow"
+                  subHeading="Funnel Pages allow you to create step by step processes for customers to follow"
                 >
                   <CreateFunnelPage
                     subaccountId={subaccountId}

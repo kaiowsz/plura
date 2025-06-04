@@ -8,8 +8,6 @@ type Props = {
 
 const SubaccountFunnelChart = ({data}: Props) => {
 
-
-
     return (
     <div className="h-fit flex transition-all items-start">
         <DonutChart 
