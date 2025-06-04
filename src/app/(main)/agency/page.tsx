@@ -13,7 +13,7 @@ type Props = {
     }
 }
 
-const AgencyMainPage = async ({ searchParams }: Props) => {
+const Page = async ({ searchParams }: Props) => {
 
     const agencyId = await verifyAndAcceptInvitation();
 
@@ -54,4 +54,4 @@ const AgencyMainPage = async ({ searchParams }: Props) => {
     ) 
 }
 
-export default AgencyMainPage
+export default Page
