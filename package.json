@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration": "^2.0.3",
     "@clerk/nextjs": "^4.29.1",
     "@clerk/themes": "^1.7.9",
     "@hookform/resolvers": "^3.3.3",
