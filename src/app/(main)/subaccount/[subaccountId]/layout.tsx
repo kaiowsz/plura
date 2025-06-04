@@ -3,6 +3,7 @@ import Sidebar from "@/components/global/Sidebar";
 import Unauthorized from "@/components/global/Unauthorized";
 import { getAuthUserDetails, getNotificationAndUser, verifyAndAcceptInvitation } from "@/lib/queries";
 import { currentUser } from "@clerk/nextjs/server";
+import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import React from "react"
 
@@ -51,7 +52,7 @@ const SubaccountIDLayout = async ({ children, params }: Props) => {
         <Sidebar id={params.subaccountId} type="subaccount" />
 
         <div className="md:pl-[300px]">
-            <Infobar notifications={notifications} role={user.privateMetadata.role as string} subAccountId={params.subaccountId as string} />
+            <Infobar notifications={notifications} role={user.privateMetadata.role as Role} subAccountId={params.subaccountId as string} />
 
             <div className="relative">
                 {children}
